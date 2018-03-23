@@ -4,12 +4,12 @@ var bcrypt = require('bcrypt');
 
 // set up a mongoose model
 var UserSchema = new Schema({
-  email: {
+    email: {
         type: String,
         unique: true,
         required: true
     },
-  password: {
+    password: {
         type: String,
         required: true
     }
@@ -18,14 +18,14 @@ var UserSchema = new Schema({
 
 UserSchema.pre('save', function (next) {
     var user = this;
-         if (this.isModified('password') || this.isNew) {
-                bcrypt.genSalt(10, function (err, salt) {
+    if (this.isModified('password') || this.isNew) {
+        bcrypt.genSalt(10, function (err, salt) {
             if (err) {
 
                 return next(err);
             }
             bcrypt.hash(user.password, salt, function (err, hash) {
-                console.log ("pass3");
+                console.log("pass3");
                 if (err) {
                     return next(err);
                 }

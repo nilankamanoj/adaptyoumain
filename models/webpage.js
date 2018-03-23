@@ -4,11 +4,11 @@ var Schema = mongoose.Schema;
 
 // set up a mongoose model
 var WebPageSchema = new Schema({
-  user: {
+    user: {
         type: String,
         required: true
     },
-  url: {
+    url: {
         type: String,
         required: true,
         unique: true
