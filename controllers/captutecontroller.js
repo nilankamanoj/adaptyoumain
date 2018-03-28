@@ -5,7 +5,7 @@ var UserData = require('../models/userdata');
 var WebPage = require('../models/webpage');
 var bodyParser = require('body-parser');
 var config = require('../config/database');
-
+var UserLabel = require('../models/userlabel');
 
 
 router.post('/save', function (req, res) {
@@ -66,9 +66,40 @@ router.post('/save', function (req, res) {
     });
 });
 
-router.get('/control', function (req, res) {
-    res.send({ success: true, msg: 'this is control data' });
+router.post('/control', function (req, res) {
 
+    var user = req.body.user;
+    var url = refineURL(req.get('referer'));
+    WebPage.findOne({
+        url: url
+    }, function (err, webpage) {
+        if (err) throw err;
+
+        if (!webpage) {
+            res.send({ success: false, msg: 'page not registerd' });
+        } else {
+
+            UserLabel.findOne({
+                url: url,
+                username: user,
+
+            }, function (err, userlabel) {
+                if (err) throw err;
+
+                if (!userlabel) {
+                    res.json({ success: false, msg: 'not labeled' });
+
+                } else {
+                    var label = userlabel.label;
+
+                    res.json({ success: true, label: label });
+
+
+                }
+
+            });
+        }
+    });
 });
 
 router.get('/', function (req, res) {

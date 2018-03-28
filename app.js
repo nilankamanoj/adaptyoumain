@@ -2,6 +2,7 @@ var express = require('express');
 var mongoose = require('mongoose');
 var bodyParser = require('body-parser');
 var passport = require('passport');
+var config = require('./config/database');
 var app = express();
 app.use(function (req, res, next) {
 
@@ -12,8 +13,8 @@ app.use(function (req, res, next) {
     next();
 
 });
-var uristring = 'mongodb://heroku_m659607v:kv8avo3fa54k1k8sdo3ckk6osi@ds229648.mlab.com:29648/heroku_m659607v';
 
+var uristring =config.database;
 var theport = process.env.PORT || 5000;
 
 mongoose.connect(uristring, function (err, res) {
