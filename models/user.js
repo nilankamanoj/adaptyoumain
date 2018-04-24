@@ -25,7 +25,7 @@ UserSchema.pre('save', function (next) {
                 return next(err);
             }
             bcrypt.hash(user.password, salt, function (err, hash) {
-                console.log("pass3");
+                
                 if (err) {
                     return next(err);
                 }

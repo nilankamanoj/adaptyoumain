@@ -6,13 +6,13 @@ var WebPage = require('../models/webpage');
 var bodyParser = require('body-parser');
 var config = require('../config/database');
 var UserLabel = require('../models/userlabel');
-
+var validator = require('../utilities/validator');
 
 router.post('/save', function (req, res) {
     var user = req.body.user;
     var id = req.body.id;
     var value = parseInt(req.body.value);
-    var page = refineURL(req.get('referer'));
+    var page = validator.refineURL(req.get('referer'));
     var clicks = 0;
     if (value == 0) {
         clicks = 1;
@@ -69,7 +69,7 @@ router.post('/save', function (req, res) {
 router.post('/control', function (req, res) {
 
     var user = req.body.user;
-    var url = refineURL(req.get('referer'));
+    var url = validator.refineURL(req.get('referer'));
     WebPage.findOne({
         url: url
     }, function (err, webpage) {
@@ -106,15 +106,4 @@ router.get('/', function (req, res) {
     res.send('capture component <br/> /save <br/> /control');
 });
 
-function refineURL(url) {
-    var currURL = url;
-    var afterDomain = currURL.substring(currURL.lastIndexOf('/') + 1);
-    var beforeQueryString = afterDomain.split("?")[0];
-    if (beforeQueryString == "index.html" || beforeQueryString == "index.php") {
-        return currURL.substring(0, currURL.lastIndexOf('/') + 1);
-    }
-    else {
-        return currURL.substring(0, currURL.lastIndexOf('/') + 1) + beforeQueryString;
-    }
-}
 module.exports = router;

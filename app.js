@@ -4,6 +4,7 @@ var bodyParser = require('body-parser');
 var passport = require('passport');
 var config = require('./config/database');
 var app = express();
+var Test1 = require('./tests/test1')
 app.use(function (req, res, next) {
 
     res.header("Access-Control-Allow-Origin", "*");
@@ -40,5 +41,5 @@ app.listen(app.get('port'), function () {
     console.log('Node app is running on port', app.get('port'));
 });
 
-
+Test1.test();
 app.use(require('./controllers'))

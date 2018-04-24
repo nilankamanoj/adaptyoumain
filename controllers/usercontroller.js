@@ -8,12 +8,13 @@ var passport = require('passport');
 var config = require('../config/database');
 var jwt = require('jwt-simple');
 require('../config/passport')(passport);
+var validator = require('../utilities/validator');
 
 router.post('/signup', function (req, res) {
     if (!req.body.email || !req.body.password) {
         res.json({ success: false, msg: 'Please pass email and password.' });
     }
-    if (!validateEmail(req.body.email)) {
+    if (!validator.validateEmail(req.body.email)) {
         res.json({ success: false, msg: 'invalid email.' });
     }
     else {
@@ -32,27 +33,35 @@ router.post('/signup', function (req, res) {
 });
 //sign in post
 router.post('/authenticate', function (req, res) {
-    User.findOne({
-        email: req.body.email
-    }, function (err, user) {
-        if (err) throw err;
+    if (!req.body.email || !req.body.password) {
+        res.json({ success: false, msg: 'Please pass email and password.' });
+    }
+    if (!validator.validateEmail(req.body.email)) {
+        res.json({ success: false, msg: 'invalid email.' });
+    }
+    else {
+        User.findOne({
+            email: req.body.email
+        }, function (err, user) {
+            if (err) throw err;
 
-        if (!user) {
-            res.send({ success: false, msg: 'Authentication failed. User not found.' });
-        } else {
-            // check if password matches
-            user.comparePassword(req.body.password, function (err, isMatch) {
-                if (isMatch && !err) {
-                    // if user is found and password is right create a token
-                    var token = jwt.encode(user, config.secret);
-                    // return the information including token as JSON
-                    res.json({ success: true, token: 'JWT ' + token });
-                } else {
-                    res.send({ success: false, msg: 'Authentication failed. Wrong password.' });
-                }
-            });
-        }
-    });
+            if (!user) {
+                res.send({ success: false, msg: 'Authentication failed. User not found.' });
+            } else {
+                // check if password matches
+                user.comparePassword(req.body.password, function (err, isMatch) {
+                    if (isMatch && !err) {
+                        // if user is found and password is right create a token
+                        var token = jwt.encode(user, config.secret);
+                        // return the information including token as JSON
+                        res.json({ success: true, token: 'JWT ' + token });
+                    } else {
+                        res.send({ success: false, msg: 'Authentication failed. Wrong password.' });
+                    }
+                });
+            }
+        });
+    }
 });
 
 
@@ -113,7 +122,7 @@ router.post('/memberinfo', passport.authenticate('jwt', { session: false }), fun
                     res.json({ success: false, msg: 'Please pass url.' });
                 } else {
                     var newWebPage = new WebPage({
-                        url: refineURL(req.body.url),
+                        url: validator.refineURL(req.body.url),
                         user: user.email
                     });
                     // save the user
@@ -148,22 +157,4 @@ getToken = function (headers) {
         return null;
     }
 };
-
-function validateEmail(email) {
-    var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-    return re.test(String(email).toLowerCase());
-}
-
-function refineURL(url) {
-    var currURL = url;
-    var afterDomain = currURL.substring(currURL.lastIndexOf('/') + 1);
-    var beforeQueryString = afterDomain.split("?")[0];
-    if (beforeQueryString == "index.html" || beforeQueryString == "index.php") {
-        return currURL.substring(0, currURL.lastIndexOf('/') + 1);
-    }
-    else {
-        return currURL.substring(0, currURL.lastIndexOf('/') + 1) + beforeQueryString;
-    }
-}
-
 module.exports = router;
