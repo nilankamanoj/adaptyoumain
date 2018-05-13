@@ -1,3 +1,9 @@
+/*
+@author : Nilanka Manoj
+@package : models
+@description : data storing model for web pages for analysed
+*/
+
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 

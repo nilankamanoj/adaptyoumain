@@ -1,6 +1,12 @@
+/*
+@author : Nilanka Manoj
+@package : models
+@description : data storing model for system users.
+*/
+
 var mongoose = require('mongoose');
-var Schema = mongoose.Schema;
 var bcrypt = require('bcrypt');
+var Schema = mongoose.Schema;
 
 // set up a mongoose model
 var UserSchema = new Schema({
@@ -16,6 +22,7 @@ var UserSchema = new Schema({
 
 });
 
+//password hashing before save mongoose model
 UserSchema.pre('save', function (next) {
     var user = this;
     if (this.isModified('password') || this.isNew) {
@@ -25,7 +32,7 @@ UserSchema.pre('save', function (next) {
                 return next(err);
             }
             bcrypt.hash(user.password, salt, function (err, hash) {
-                
+
                 if (err) {
                     return next(err);
                 }
@@ -39,6 +46,7 @@ UserSchema.pre('save', function (next) {
     }
 });
 
+//password compare with hashed password
 UserSchema.methods.comparePassword = function (passw, cb) {
     bcrypt.compare(passw, this.password, function (err, isMatch) {
         if (err) {

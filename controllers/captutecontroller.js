@@ -1,5 +1,10 @@
+/*
+@author : Nilanka Manoj
+@package : controllers
+@description : controller of capture componenet, supplies API to communicate with registered web pages.
+*/
+
 var express = require('express');
-var router = express.Router();
 var mongoose = require('mongoose');
 var UserData = require('../models/userdata');
 var WebPage = require('../models/webpage');
@@ -8,6 +13,9 @@ var config = require('../config/database');
 var UserLabel = require('../models/userlabel');
 var validator = require('../utilities/validator');
 
+var router = express.Router();
+
+//save user data for web components of web pages
 router.post('/save', function (req, res) {
     var user = req.body.user;
     var id = req.body.id;
@@ -66,6 +74,7 @@ router.post('/save', function (req, res) {
     });
 });
 
+//returns the user label for control UI if analysed
 router.post('/control', function (req, res) {
 
     var user = req.body.user;
@@ -102,6 +111,7 @@ router.post('/control', function (req, res) {
     });
 });
 
+//information of api in root get
 router.get('/', function (req, res) {
     res.send('capture component <br/> /save <br/> /control');
 });

@@ -1,3 +1,9 @@
+/*
+@author : Nilanka Manoj
+@package : models
+@description : data storing model for labels of analysed users
+*/
+
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 

@@ -1,5 +1,10 @@
+/*
+@author : Nilanka Manoj
+@package : controllers
+@description : controller of user componenet, supplies API to communicate with dashboard web pages.
+*/
+
 var express = require('express');
-var router = express.Router();
 var User = require('../models/user');
 var WebPage = require('../models/webpage');
 var bodyParser = require('body-parser');
@@ -10,6 +15,9 @@ var jwt = require('jwt-simple');
 require('../config/passport')(passport);
 var validator = require('../utilities/validator');
 
+var router = express.Router();
+
+//add new user to the system
 router.post('/signup', function (req, res) {
     if (!req.body.email || !req.body.password) {
         res.json({ success: false, msg: 'Please pass email and password.' });
@@ -31,7 +39,8 @@ router.post('/signup', function (req, res) {
         });
     }
 });
-//sign in post
+
+//sign in to the system
 router.post('/authenticate', function (req, res) {
     if (!req.body.email || !req.body.password) {
         res.json({ success: false, msg: 'Please pass email and password.' });
@@ -46,7 +55,7 @@ router.post('/authenticate', function (req, res) {
             if (err) throw err;
 
             if (!user) {
-                res.send({ success: false, msg: 'Authentication failed. User not found.' });
+                res.json({ success: false, msg: 'Authentication failed. User not found.' });
             } else {
                 // check if password matches
                 user.comparePassword(req.body.password, function (err, isMatch) {
@@ -56,7 +65,7 @@ router.post('/authenticate', function (req, res) {
                         // return the information including token as JSON
                         res.json({ success: true, token: 'JWT ' + token });
                     } else {
-                        res.send({ success: false, msg: 'Authentication failed. Wrong password.' });
+                        res.json({ success: false, msg: 'Authentication failed. Wrong password.' });
                     }
                 });
             }
@@ -65,7 +74,7 @@ router.post('/authenticate', function (req, res) {
 });
 
 
-// route to a restricted info (GET http://localhost:8080/api/memberinfo)
+// route to a restricted info : webpages
 router.get('/memberinfo', passport.authenticate('jwt', { session: false }), function (req, res) {
     var token = getToken(req.headers);
     if (token) {
@@ -103,7 +112,7 @@ router.get('/memberinfo', passport.authenticate('jwt', { session: false }), func
     }
 });
 
-// route to a restricted info (post http://localhost:8080/api/memberinfo)
+// route to a restricted info : add web pages
 router.post('/memberinfo', passport.authenticate('jwt', { session: false }), function (req, res) {
     var token = getToken(req.headers);
 
@@ -125,7 +134,7 @@ router.post('/memberinfo', passport.authenticate('jwt', { session: false }), fun
                         url: validator.refineURL(req.body.url),
                         user: user.email
                     });
-                    // save the user
+                    // save the web page
                     newWebPage.save(function (err) {
                         if (err) {
                             return res.json({ success: false, msg: 'web page already exists.' });
@@ -133,7 +142,6 @@ router.post('/memberinfo', passport.authenticate('jwt', { session: false }), fun
                         res.json({ success: true, msg: 'Successful added new url.' });
                     });
                 }
-                //res.json({success: true, msg: 'Welcome in the member area ' + user.email + '!'});
 
             }
         });
@@ -141,10 +149,54 @@ router.post('/memberinfo', passport.authenticate('jwt', { session: false }), fun
         return res.status(403).send({ success: false, msg: 'No token provided.' });
     }
 });
-router.get('/', function (req, res) {
-    res.send('user controller component <br/> /signup <br/> /authenticate <br/> /memberinfo');
+
+// route to a restricted info : delete web pages
+router.post('/deletepage', passport.authenticate('jwt', { session: false }), function (req, res) {
+    var token = getToken(req.headers);
+
+    if (token) {
+        var decoded = jwt.decode(token, config.secret);
+
+        User.findOne({
+            email: decoded.email
+        }, function (err, user) {
+            if (err) throw err;
+
+            if (!user) {
+                return res.status(403).send({ success: false, msg: 'Authentication failed. User not found.' });
+            } else {
+                if (!req.body.url) {
+                    res.json({ success: false, msg: 'Please pass url.' });
+                } else {
+                    WebPage.findOne({
+                        url: req.body.url
+                    }, function (err, webPage) {
+                        if (!webPage) {
+                            res.json({ success: false, msg: 'Url dosent exist.' });
+                        }
+                        else {
+                            webPage.remove(function (err) {
+                                if (err) throw err;
+                                else {
+                                    res.json({ success: true, msg: 'URL deleted.' });
+                                }
+                            });
+                        }
+                    });
+                }
+            }
+        });
+    } else {
+        return res.status(403).send({ success: false, msg: 'No token provided.' });
+    }
 });
 
+//information of api in root get
+router.get('/', function (req, res) {
+    res.send('user controller component <br/> /signup <br/> /authenticate <br/> /memberinfo <br/> /deletepage');
+});
+
+//extract token from headers
 getToken = function (headers) {
     if (headers && headers.authorization) {
         var parted = headers.authorization.split(' ');

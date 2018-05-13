@@ -1,6 +1,11 @@
+/*
+@author : Nilanka Manoj
+@package : models
+@description : data storing model for stor user behavioural data
+*/
+
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
-
 
 // set up a mongoose model
 var UserDataSchema = new Schema({
