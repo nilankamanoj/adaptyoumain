@@ -5,6 +5,8 @@
 */
 
 var express = require('express');
+let fs = require('fs')
+
 
 var router = express.Router()
 
@@ -15,7 +17,9 @@ router.use('/analytic', require('./analyticcontroller'));
 
 //information of api in root get
 router.get('/', function (req, res) {
-    res.send('adapt you main server api <br/> /api <br/> /capture <br/> /analytic');
+    
+    let content = fs.readFileSync(process.cwd() + "/" + "test.txt").toString()
+    res.send(content);
 });
 
 module.exports = router
