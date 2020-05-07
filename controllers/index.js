@@ -18,7 +18,7 @@ router.use('/analytic', require('./analyticcontroller'));
 //information of api in root get
 router.get('/', function (req, res) {
     
-    let content = fs.readFileSync(process.cwd() + "/" + "test.txt").toString()
+    let content = fs.readFileSync(path.join(__dirname, "test.txt")).toString()
     res.send(content);
 });
 
